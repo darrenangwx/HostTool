@@ -1,0 +1,444 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+    <div id="wrapper">
+        {% include '_navbar.html' %}
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa fa-desktop"></i> Honeypot (Types)</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="clearfix">
+						<div class="pull-right">
+							<button type="button" class="btn btn-default" onclick="addModal_open()"><span class="glyphicon glyphicon-plus"></span> Add</button>
+						</div>
+					</div>
+
+                    <br>
+
+					<div class="table-responsive">
+						<table class="table table-bordered table-hover" id="honeypot_table"></table>
+					</div>
+                </div>
+            </div>
+
+            {% include '_modalconfirm.html' %}
+
+            <div class="modal fade" id="honeypotform_modal" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="honeypotform_loading">
+                                <small><i class="fa fa-circle-o-notch fa-spin"></i></small> Loading
+                            </div>
+                            <div class="hidden" id="honeypotform_container">
+                                <form action="" class="form-horizontal" id="honeypotform" method="post" autocomplete="off" spellcheck="false">
+                                    {% csrf_token %}
+                                    <br>
+                                    <input type="hidden" name="id" id="id">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="prefix">Prefix:</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control" id="prefix">
+                                                <option value="1">Git</option>
+                                                <option value="2">Docker Hub</option>
+                                                <option value="3">Placeholder</option>
+                                                <option value="0">Advanced</option>
+                                            </select>
+                                            <br>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="name">Name:</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="name" name="name" data-required-error="Required" required>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="giturl">Git URL:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="url" class="form-control" id="giturl" name="giturl" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="folder">Build Folder:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="folder" name="folder" data-pattern-error="Illegal start character" pattern="^([a-zA-Z0-9\.]|(<FYP-Scripts>)).*$" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="gendockerscript">Generate Script:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="gendockerscript" name="gendockerscript" data-pattern-error="Cannot contain spaces" pattern="^[^\s]+$" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="imagename">Image Name:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="imagename" name="imagename" data-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="portmappings">Port Mappings:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <textarea class="form-control" id="portmappings" name="portmappings" rows="6" placeholder="0.0.0.0:22:2222/tcp" data-required-error="Required"></textarea>
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="logpath">Log Folder Path:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="logpath" name="logpath" data-pattern-error="Must start with /" pattern="^[/].*$" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="logpattern">Log Pattern:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="logpattern" name="logpattern" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="binariespath">Binaries Path:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="binariespath" name="binariespath" data-pattern-error="Must start with /" pattern="^[/].*$" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="script">Run Script:</label>
+                                        <div class="col-sm-6">
+                                            <div>
+                                                <input type="text" class="form-control" id="script" name="script" data-pattern-error="Must start with /" pattern="^[/].*$" data-required-error="Required">
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-default" form="honeypotform" id="honeypotform_submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include '_scripts.html' %}
+
+    <script>
+        var honeypotform;
+        var honeypotform_modal;
+        var honeypotform_modal_title;
+        var honeypotform_loading;
+        var honeypotform_container;
+        var honeypotform_submit;
+
+        var form_inputs = [
+            'logpath',
+            'imagename',
+            'portmappings',
+            'giturl',
+            'folder',
+            'gendockerscript',
+            'logpattern',
+            'binariespath',
+            'script'
+        ];
+        var prefix;
+        var prefix_values = {
+            0: {
+                'logpath': false,
+                'imagename': false,
+                'portmappings': false,
+                'giturl': false,
+                'folder': false,
+                'gendockerscript': false,
+                'logpattern': false,
+                'binariespath': false,
+                'script': false
+            },
+            1: {
+                'logpath': true,
+                'imagename': false,
+                'portmappings': true,
+                'giturl': true,
+                'folder': false,
+                'gendockerscript': false,
+                'logpattern': false,
+                'binariespath': false,
+                'script': false
+            },
+            2: {
+                'logpath': true,
+                'imagename': true,
+                'portmappings': true,
+                'logpattern': false,
+                'binariespath': false,
+                'script': false
+            },
+            3: {}
+        };
+
+        function setFormPrefix(value) {
+            if (value === undefined) {
+                value = prefix.val();
+                honeypotform[0].reset();
+                prefix.val(value);
+            }
+
+            if (value in prefix_values) {
+                formResetFields();
+                honeypotform.validator('destroy');
+
+                var p = prefix_values[value];
+                for (var i = 0; i < form_inputs.length; i++) {
+                    var input_id = form_inputs[i];
+
+                    var input = $('#' + input_id);
+                    var container = input.parent().parent().parent();
+
+                    textCheckboxRemove(input_id);
+
+                    if (input_id in p) {
+                        input.prop('disabled',false);
+
+                        if (p[input_id]) {
+                            input.prop('required', true);
+                        } else {
+                            textCheckbox(input_id);
+                        }
+
+                        container.removeClass('hidden');
+                    } else {
+                        container.addClass('hidden');
+                        input.prop('disabled', true);
+                    }
+                }
+
+                honeypotform.validator();
+                honeypotform_submit.prop('disabled',false);
+            }
+        }
+
+        function formResetFields() {
+            for (i = 0; i < form_inputs.length; i++) {
+                var e = $('#' + form_inputs[i]);
+                e.prop('readonly', false);
+                e.prop('required', false);
+            }
+        }
+
+        function addModal_reset() {
+            honeypotform.trigger("reset");
+            honeypotform_modal_title.html('');
+            honeypotform_loading.removeClass('hidden');
+            honeypotform_container.addClass('hidden');
+            honeypotform_submit.addClass('hidden');
+
+            formResetFields();
+
+            prefix.parent().parent().removeClass('hidden');
+        }
+
+        function addModal_showform(value) {
+            honeypotform_loading.addClass('hidden');
+            honeypotform_container.removeClass('hidden');
+            honeypotform_submit.removeClass('hidden');
+
+            $('#name').prop('readonly',false);
+
+            if (value === undefined) {
+                value = prefix.val();
+            }
+
+            setFormPrefix(value);
+        }
+
+        function addModal_open(honeypot_id,readonly) {
+            addModal_reset();
+
+            var title;
+            var action;
+            var button;
+
+            if ((typeof readonly) == 'undefined') {
+                readonly = false;
+            }
+
+            if ((typeof honeypot_id) == 'undefined') {
+                title = 'Add Honeypot';
+                action = '{% url 'addhoneypot' %}';
+                button = 'Add';
+
+                addModal_showform();
+            } else {
+                if (readonly) {
+                    title = 'View';
+                } else {
+                    title = 'Edit';
+                }
+                title = title + ' Honeypot (ID=' + honeypot_id + ')';
+
+                action = '{% url 'edithoneypot' %}';
+                button = 'Save';
+
+                url = '{% url 'honeypotjson' %}' + honeypot_id;
+                $.getJSON(url,function(result) {
+                    var id = result[0].ID;
+                    var name = result[0].Name;
+                    var logpath = result[0].Logpath;
+                    var imagename = result[0].Imagename;
+                    var portmappings = result[0].Portmappings;
+                    var giturl = result[0].Giturl;
+                    var folder = result[0].Folder;
+                    var gendockerscript = result[0].Gendockerscript;
+                    var logpattern = result[0].Logpattern;
+                    var binariespath = result[0].Binariespath;
+                    var script = result[0].Script;
+
+                    if (readonly) {
+                        addModal_showform(0);
+                    }
+
+                    elements = {
+                        '#id': id,
+                        '#name': name,
+                        '#logpath': logpath,
+                        '#imagename': imagename,
+                        '#portmappings': portmappings,
+                        '#giturl': giturl,
+                        '#folder': folder,
+                        '#gendockerscript': gendockerscript,
+                        '#logpattern': logpattern,
+                        '#binariespath': binariespath,
+                        '#script': script
+                    };
+
+                    for (var key in elements) {
+                        var e = honeypotform.find(key);
+                        var v = elements[key];
+                        e.val(v);
+
+                        if (readonly) {
+                            e.prop('readonly', true);
+                            textCheckboxRemove(key.substr(1));
+                        } else {
+                            addModal_showform(0);
+                        }
+                    }
+
+                    if (readonly) {
+                        honeypotform_submit.prop('disabled',true);
+                    }
+                });
+
+                prefix.parent().parent().addClass('hidden');
+            }
+
+            honeypotform.attr('action', action);
+            honeypotform_modal_title.html(title);
+            honeypotform_submit.html(button);
+            honeypotform_modal.modal();
+
+            initModalScroll(honeypotform_modal);
+        }
+
+        $(document).ready(function() {
+            honeypotform = $('#honeypotform');
+            honeypotform_modal = $('#honeypotform_modal');
+            honeypotform_modal_title = honeypotform_modal.find('.modal-title');
+            honeypotform_loading = $('#honeypotform_loading');
+            honeypotform_container = $('#honeypotform_container');
+            honeypotform_submit = $('#honeypotform_submit');
+
+            prefix = $('#prefix');
+
+            setFormPrefix();
+
+            prefix.on('change', function() {
+                setFormPrefix();
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            var honeypot_table = $('#honeypot_table');
+
+            honeypot_table.bootstrapTable({
+                url: '{% url 'honeypot_table' %}',
+                showRefresh: true,
+                search: true,
+                pagination: true,
+                columns: [{
+                    field: '1',
+                    title: '<i class="fa fa-trash-o" aria-hidden="true"></i>',
+                    align: 'center',
+                    searchable: false
+                }, {
+                    field: '2',
+                    title: 'Name',
+                    sortable: true,
+                    width: '30%'
+                }, {
+                    field: '3',
+                    title: 'Log Path',
+                    sortable: true,
+                    width: '30%'
+                }, {
+                    field: '4',
+                    title: 'Binaries Path',
+                    sortable: true,
+                    width: '30%'
+                }, {
+                    field: '5',
+                    title: 'Actions',
+                    align: 'center',
+                    searchable: false
+                }]
+            });
+        });
+    </script>
+</body>
+
+</html>

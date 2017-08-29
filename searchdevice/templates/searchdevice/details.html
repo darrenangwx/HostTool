@@ -1,0 +1,149 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+<div id="wrapper">
+    {% include '_navbar.html' %}
+    <div id="page-wrapper">
+        <div class="row">
+            <h1 class="page-header"><i class="glyphicon glyphicon-globe"></i> {{ ip }} </h1>
+        </div>
+        <!-- General Info -->
+        <div class="col-md-6 general-info">
+            <h4>Summary</h4>
+            <table class="table">
+                <thead>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>City:</td>
+                    <td class="data.city">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Country:</td>
+                    <td class="data.country_name">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Organization:</td>
+                    <td class="data.org">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>HoneyScore</td>
+                    <td>
+                        <div class="honeyscore">
+                            <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                            Loading
+                        </div>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Last Update:</td>
+                    <td class="data.last_update">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ports Opened -->
+
+        <div class="col-md-6 ports">
+            <h4> Ports </h4>
+            <ul class="list-unstyled list-inline">
+                <li>
+                    <span class="label label-primary"><small><i class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12 return-headers">
+                <h4> Return Headers </h4>
+                <ul class="list-unstyled">
+                    <li>
+                        <p>Port: <span class="label label-default port"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span></p>
+                        <p>Protocol: <span class="label label-primary protocol"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span></p>
+                        <p>Title: <span class="label label-danger title"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span></p>
+                        <p>Service: <span class="label label-info service"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span></p>
+                        <div class="panel panel-default">
+                            <div class="panel-body return-data">
+                                <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                                Loading
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+
+
+            </div>
+
+            {% include '_scripts.html' %}
+
+
+            <script>
+                $.getJSON("https://api.shodan.io/shodan/host/{{ ip }}?key={{ api_key }}", function (jsonFromFile) {
+                    // Rendering General Info JSON
+                    $p('.general-info').autoRender({
+                        data: jsonFromFile
+                    });
+
+                    // Render Ports
+                    ports = {
+                        'li': {
+                            'port<-ports': {
+                                'span': 'port'
+                            }
+                        }
+                    };
+
+                    $p('.ports').render(jsonFromFile, ports);
+                    // Render the Return headers from Shodan
+                    return_headers = {
+                        'li': {
+                            'data<-': {
+                                'span.port': 'data.port',
+                                'span.protocol': 'data.transport',
+                                'span.service': 'data.product',
+                                'span.title': 'data.title',
+                                'div.return-data': 'data.data'
+                            }
+                        }
+                    };
+                    $p('.return-headers').render(jsonFromFile.data, return_headers);
+                });
+
+                $.get("https://api.shodan.io/labs/honeyscore/{{ ip }}?key={{ api_key }}", function (data, status) {
+                    // Rendering HoneyScore
+                    $('.honeyscore').html(data)
+                });
+
+            </script>
+        </div>
+    </div>
+</div>
+</body>

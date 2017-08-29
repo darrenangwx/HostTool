@@ -1,0 +1,89 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+<div id="wrapper">
+    {% include '_navbar.html' %}
+    <div id="page-wrapper">
+        <div class="row">
+            <h1 class="page-header"><i class="glyphicon glyphicon-globe"></i> Shodan-Masscan Integration </h1>
+        </div>
+        {% block error_message %}
+            {% if error_message %}
+                <div class='alert alert-danger'>{{ error_message }}</div>{% endif %}
+        {% endblock %}
+        <div id="loading" style="text-align: center;">
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+            Loading
+        </div>
+        <table id="table" data-search="true">
+        </table>
+
+        <br/>
+        <br/>
+        <a href="{% url 'scanner' %}" type="button" class="btn btn-default pull-left"><i
+                class="glyphicon glyphicon-chevron-left"></i>Go to masscan</a>
+        <a href="{% url 'searchdevice_shodan' %}" type="button" class="btn btn-default pull-right">Go to shodan<i
+                class="glyphicon glyphicon-chevron-right"></i></a>
+        {% include '_scripts.html' %}
+
+
+        <script>
+            $.getJSON("{% url 'shodan_masscan_api' %}?api_key={{ api_key }}", function (jsonFromFile) {
+                $(document).ready(function () {
+                    $('#table').bootstrapTable({
+                        data: jsonFromFile,
+                        columns: [
+                            {
+                                field: 'ip',
+                                title: 'IP',
+                                sortable: 'true',
+                                formatter: 'IpFormatter'
+                            },
+                            {
+                                field: 'port',
+                                title: 'Port',
+                                sortable: 'true'
+                            },
+                            {
+                                field: 'product',
+                                title: 'Service',
+                                sortable: 'true'
+                            },
+                            {
+                                field: 'version',
+                                title: 'Version',
+                                sortable: 'true'
+                            },
+                            {
+                                field: 'vulnerable',
+                                title: 'Vulnerable?',
+                                sortable: 'true',
+                                formatter: LinkFormatter
+                            }
+                        ]
+                    });
+                    $('#loading').hide()
+                })
+            });
+
+
+            function LinkFormatter(value) {
+                if (value !== 0) {
+                    return '<i class="glyphicon glyphicon-alert"></i>   ' + value;
+                }
+            }
+
+            function IpFormatter(value) {
+                return "<a href='{% url 'shodan_details' %}?ip=" + value + "&api_key={{ api_key }}'>" + value + "</a>";
+            }
+
+        </script>
+
+    </div>
+</div>
+</body>

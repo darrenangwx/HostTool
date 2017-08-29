@@ -1,0 +1,635 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+    <div id="wrapper">
+        {% include '_navbar.html' %}
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa fa-desktop"></i> Honeypot (Deployment)</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="clearfix">
+						<div class="pull-right">
+							<button type="button" class="btn btn-default" onclick="addModal_open()"><span class="glyphicon glyphicon-plus"></span> Add</button>
+						</div>
+					</div>
+
+                    <br>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="deployment_table"></table>
+                    </div>
+                </div>
+            </div>
+
+            {% include '_modalconfirm.html' %}
+
+            <div class="modal fade" id="deploymentform_modal" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="deploymentform_loading">
+                                <small><i class="fa fa-circle-o-notch fa-spin"></i></small> Loading
+                            </div>
+                            <div class="hidden" id="deploymentform_container">
+                                <form action="{% url 'deploymentadd' %}" class="form-horizontal" id="deploymentform" method="post" autocomplete="off" spellcheck="false" data-toggle="validator">
+                                    {% csrf_token %}
+                                    <div class="text-right">
+                                        <i class="fa fa-question-circle" aria-hidden="true" data-toggle="popover" data-trigger="hover" title="<strong>Note:</strong>" data-content="Adding honeypots with ports used by the host server may result in port conflicts.<br><br>This includes host ports that are used by the host or other docker containers." data-placement="right" data-html="true"></i>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="honeypot">Honeypot:</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control" id="honeypot" name="honeypot" data-required-error="Required" required></select>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="server">Server:</label>
+                                        <div class="col-sm-6">
+                                            <select class="form-control" id="server" name="server" data-required-error="Required" required></select>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="text-right">
+                                        <i class="fa fa-question-circle" aria-hidden="true" data-toggle="popover" data-trigger="hover" title="<strong>Note:</strong>" data-content="Fields below the line are for adding already running docker containers.<br><br>Requires honeypot placeholder." data-placement="right" data-html="true"></i>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="dockerid">Docker ID:</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="dockerid" name="dockerid" data-pattern-error="Cannot contain spaces" pattern="^[^\s]+$">
+                                                <span class="input-group-addon">
+                                                    <input type="checkbox" id="dockerid_checkbox">
+                                                </span>
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="mountvolume">Log Volume:</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="mountvolume" name="mountvolume" data-pattern-error="Illegal start character" pattern="^[a-zA-Z0-9\.].*$">
+                                                <span class="input-group-addon">
+                                                    <input type="checkbox" id="mountvolume_checkbox">
+                                                </span>
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="binariesvolume">Binaries Volume:</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="binariesvolume" name="binariesvolume" data-pattern-error="Illegal start character" pattern="^[a-zA-Z1-9\.].*$">
+                                                <span class="input-group-addon">
+                                                    <input type="checkbox" id="binariesvolume_checkbox">
+                                                </span>
+                                            </div>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-default" form="deploymentform" id="deploymentform_submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="buildmodal" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Build Log</h4>
+                        </div>
+                        <div class="modal-body"></div>
+                        <div class="modal-footer hidden">
+                            <div class="text-center">
+                                <button type="button" class="btn btn-danger" id="buildmodal_close" data-dismiss="modal">Delete Log</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="logstable_modal" role="dialog">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="logstable"></table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include '_scripts.html' %}
+
+    <script>
+        var logstable;
+        var logstable_modal;
+        var logstable_modal_title;
+
+        function monitorAddRemove(e,deployment_id,filename,num) {
+            if (!isDisabled(e)) {
+                $(e).prop('disabled',true);
+
+                var url;
+                if (num == 1) {
+                    url = '{%  url 'deploymentlogs' %}addmonitor/'
+                } else if (num == 2) {
+                    url = '{%  url 'deploymentlogs' %}removemonitor/'
+                }
+
+                if (url) {
+                    url = url + deployment_id + '/' + filename;
+                    $.ajax({url: url, success: function(result) {
+                        logstable.bootstrapTable('refresh', {silent: true});
+                    }});
+                }
+            }
+        }
+
+        function logsModal_open(e,deployment_id,name,type) {
+            if (!isDisabled(e)) {
+                if (type == 1) {
+                    title = 'Logs for \'' + name + '\'';
+                    url = '{% url 'deploymentlogs' %}' + deployment_id + '/table/';
+                } else {
+                    title = 'Binaries for \'' + name + '\'';
+                    url = '{% url 'deploymentbinaries' %}' + deployment_id + '/table/';
+                }
+
+                logstable_modal_title.html(title);
+
+                logstable.bootstrapTable('destroy');
+                logstable.bootstrapTable({
+                    url: url,
+                    showRefresh: true,
+                    search: true,
+                    pagination: true,
+                    columns: [{
+                        field: '0',
+                        title: '#',
+                        sortable: 'true',
+                        align: 'center'
+                    }, {
+                        field: '1',
+                        title: 'Filename',
+                        sortable: 'true',
+                        width: '100%'
+                    }, {
+                        field: '2',
+                        title: 'Size',
+                        sortable: 'true'
+                    }, {
+                        field: '3',
+                        title: 'Action',
+                        align: 'center'
+                    }]
+                });
+
+                logstable_modal.modal();
+
+                initModalScroll(logstable_modal);
+            }
+        }
+
+        $(document).ready(function () {
+            logstable = $('#logstable');
+            logstable_modal = $('#logstable_modal');
+            logstable_modal_title = logstable_modal.find('.modal-title');
+
+            logstable.on('all.bs.table', function(e, name, args) {
+                $(".tooltip").tooltip("hide");
+                initTooltip();
+            });
+        });
+    </script>
+
+    <script>
+        var deploymentform;
+        var deploymentform_modal;
+        var deploymentform_modal_title;
+        var deploymentform_loading;
+        var deploymentform_container;
+        var deploymentform_submit;
+
+        function addModal_reset() {
+            deploymentform.trigger("reset");
+            deploymentform_modal_title.html('');
+            deploymentform_loading.removeClass('hidden');
+            deploymentform_container.addClass('hidden');
+            deploymentform_submit.addClass('hidden');
+        }
+
+        function addModal_showform() {
+            deploymentform_loading.addClass('hidden');
+            deploymentform_container.removeClass('hidden');
+            deploymentform_submit.removeClass('hidden');
+
+            addModal_checkboxes();
+        }
+
+        function addModal_checkboxes() {
+            textCheckbox('dockerid');
+            textCheckbox('mountvolume');
+            textCheckbox('binariesvolume');
+        }
+
+        function addModal_open() {
+            addModal_reset();
+
+            var title = 'Add Deployment';
+            var button = 'Add';
+
+            $.getJSON('{% url 'deploymentaddjson' %}',function(result) {
+                var honeypot_selectbox = $('#honeypot');
+                var server_selectbox = $('#server');
+
+                honeypot_selectbox.empty().append("<option value=''></option>").val('');
+                server_selectbox.empty().append("<option value=''></option>").val('');
+
+                var honeypots = result.Honeypots;
+                for (var i in honeypots) {
+                    var id = honeypots[i].ID;
+                    var name = honeypots[i].Name;
+                    var d = honeypots[i].Default;
+
+                    if (d) {
+                        name = '[DEFAULT] ' + name;
+                    }
+
+                    honeypot_selectbox.append($('<option></option>').val(id).text(name));
+                }
+
+                var sshCreds = result.SSHCreds;
+                for (var i in sshCreds) {
+                    var id = sshCreds[i].ID;
+                    var name = sshCreds[i].Name;
+                    var user = sshCreds[i].Username;
+                    var ip = sshCreds[i].IP;
+
+                    var name = name + ' - ' + user + '@' + ip;
+                    server_selectbox.append($('<option></option>').val(id).text(name));
+                }
+
+                addModal_showform();
+            });
+
+            deploymentform_modal_title.html(title);
+            deploymentform_submit.html(button);
+            deploymentform_modal.modal();
+
+            initModalScroll(deploymentform_modal);
+        }
+
+        function openWindow(url) {
+            window.open(url);
+        }
+
+        $(document).ready(function () {
+            deploymentform = $('#deploymentform');
+            deploymentform_modal = $('#deploymentform_modal');
+            deploymentform_modal_title = deploymentform_modal.find('.modal-title');
+            deploymentform_loading = $('#deploymentform_loading');
+            deploymentform_container = $('#deploymentform_container');
+            deploymentform_submit = $('#deploymentform_submit');
+        });
+    </script>
+
+    <script>
+        var deployment_table;
+        var deployment_table_timeout;
+        var buildmodal;
+        var buildmodal_body;
+        var buildmodal_footer;
+        var buildmodal_close;
+        var buildmodal_timeout;
+
+        function setLoadingStatus(deployment_id) {
+            var id = "#deployment_" + deployment_id;
+            var status_id = id + "_status";
+            var actions_id = id + "_actions";
+            var logs_id = id + "_logs";
+
+            $(status_id).html('<span class="label label-default"><small><i class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>');
+
+            $(actions_id + ' *').prop("disabled",true);
+            $(logs_id + ' *').prop("disabled",true);
+        }
+
+        function getDockerStatus(deployment_id) {
+            var id = "#deployment_" + deployment_id;
+
+            var status_container = $(id + "_status");
+            var buttons_actions = $(id + "_actions").children().eq(0);
+            var buttons_logs = $(id + "_logs").children().eq(0);
+
+            setLoadingStatus(deployment_id);
+
+            $.getJSON("{% url 'deploymentstatus' %}" + deployment_id + "/", function(result){
+                var actions = {
+                    'start': false,
+                    'stop': false,
+                    'logs': false,
+                    'binaries': false
+                };
+
+                var status = result.Status;
+                if (status == 1) {
+                    status_container.html('<span class="label label-success">Running</span>');
+                    actions['stop'] = true;
+                    actions['logs'] = true;
+                    actions['binaries'] = true;
+                } else if (status == 2) {
+                    status_container.html('<span class="label label-danger">Stopped</span>');
+                    actions['start'] = true;
+                    actions['logs'] = true;
+                    actions['binaries'] = true;
+                } else if (status == 3) {
+                    status_container.html('<button type="button" class="btn btn-default btn-xs" onclick="buildDocker(this,' + deployment_id + ')"><span class="glyphicon glyphicon-hdd"></span> Build</button>');
+                } else if (status == 4) {
+                    status_container.html('<span class="label label-default">Building</span>');
+                } else {
+                    status_container.html('<span class="label label-warning">Error</span>');
+                }
+
+                if (actions['start']) {
+                    buttons_actions.children().eq(0).prop('disabled',false);
+                }
+
+                if (actions['stop']) {
+                    buttons_actions.children().eq(1).prop('disabled',false);
+                }
+
+                if (actions['binaries']) {
+                    buttons_logs.children().eq(0).prop('disabled',false);
+                }
+
+                if (actions['logs']) {
+                    buttons_logs.children().eq(1).prop('disabled',false);
+                }
+            });
+        }
+
+        function startDocker(e, deployment_id) {
+            if (!isDisabled(e)) {
+                setLoadingStatus(deployment_id);
+
+                $.ajax({url: "{% url 'deploymentstart' %}" + deployment_id + "/", success: function(result) {
+                    getDockerStatus(deployment_id);
+                }});
+            }
+        }
+
+        function stopDocker(e, deployment_id) {
+            if (!isDisabled(e)) {
+                setLoadingStatus(deployment_id);
+
+                $.ajax({url: "{% url 'deploymentstop' %}" + deployment_id + "/", success: function(result) {
+                    getDockerStatus(deployment_id);
+                }});
+            }
+        }
+
+        function refreshDeploymentTable(refresh) {
+            if (deployment_table_timeout) {
+                clearTimeout(deployment_table_timeout);
+            }
+
+            if (refresh) {
+                deployment_table.bootstrapTable('refresh', {silent: true});
+            }
+
+            deployment_table_timeout = setTimeout(function () {
+                deployment_table.bootstrapTable('refresh', {silent: true});
+                refreshDeploymentTable();
+            },60000);
+        }
+
+        function refreshBuildModal(deployment_id) {
+            if (buildmodal_timeout) {
+                clearTimeout(buildmodal_timeout);
+            }
+
+            url = '{% url 'deploymentbuild' %}' + deployment_id + '/progress/';
+
+            $.getJSON(url, function(result){
+                var output = result.Output;
+                var error = result.Error;
+                var finish = result.Finish;
+                html = '';
+                if (output) {
+                    if (!html) {
+                        html += '<strong>Output:</strong><br>'
+                    }
+
+                    output = output.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                    html += output + '<br>';
+                }
+
+                if (finish) {
+                    buildmodal_close.click(function () {
+                        buildDockerClose(deployment_id);
+                    });
+
+                    if (error) {
+                        error = error.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                        html += ('<strong>Error:</strong><br>' + error + '<br>');
+                    }
+
+                    html += '<strong>Build Complete</strong>';
+
+                    buildmodal_footer.removeClass('hidden');
+                } else {
+                    buildmodal_timeout = setTimeout(function() {
+                        refreshBuildModal(deployment_id);
+                    },1000);
+                }
+
+                if (html) {
+                    buildmodal_body.html(html);
+                }
+
+                buildmodal.animate({ scrollTop: buildmodal_body[0].scrollHeight }, 400);
+            });
+        }
+
+        function openBuildModal(e,deployment_id) {
+            if (!isDisabled(e)) {
+                buildmodal.attr('deployment_id',deployment_id);
+
+                buildmodal.modal('hide');
+                buildmodal.modal();
+
+                refreshBuildModal(deployment_id);
+            }
+        }
+
+        function buildDocker(e,deployment_id) {
+            if (!isDisabled(e)) {
+                $(e).prop("disabled",true);
+
+                url = '{% url 'deploymentbuild' %}' + deployment_id + '/';
+                $.ajax({url: url});
+
+                openBuildModal(buildmodal_footer,deployment_id);
+            }
+        }
+
+        function buildDockerClose(deployment_id) {
+            url = '{% url 'deploymentbuild' %}' + deployment_id + '/progress/delete/';
+            $.ajax({url: url});
+        }
+
+        function initializeBuildModal() {
+            buildmodal_body.html('<i class="fa fa-circle-o-notch fa-spin"></i> Loading...');
+            buildmodal_footer.addClass('hidden');
+            buildmodal_close.off('click');
+        }
+
+        $(document).ready(function() {
+            deployment_table = $('#deployment_table');
+            buildmodal = $('#buildmodal');
+            buildmodal_body = buildmodal.find('.modal-body');
+            buildmodal_footer = buildmodal.find('.modal-footer');
+            buildmodal_close = $('#buildmodal_close');
+
+            initializeBuildModal();
+
+            buildmodal.on('hidden.bs.modal', function() {
+                if (buildmodal_timeout) {
+                    clearTimeout(buildmodal_timeout);
+                }
+
+                initializeBuildModal();
+
+                deployment_id = buildmodal.attr('deployment_id');
+                if (deployment_id) {
+                    var inputgroup = $('#deployment_' + deployment_id + '_inputgroup');
+                    var input = inputgroup.find('input');
+                    var buildlogbtn = inputgroup.find('.buildlogbtn');
+                    var copybtn = inputgroup.find('.copybtn');
+
+                    input.val('Loading...');
+
+                    getDockerStatus(deployment_id);
+
+                    url = '{% url 'deploymentjson' %}' + deployment_id;
+                    $.getJSON(url, function(result){
+                        var docker_id = result[0].docker_id;
+
+                        if (docker_id) {
+                            input.val(docker_id);
+                            copybtn.prop('disabled',false);
+                        } else {
+                            input.val('-');
+                        }
+
+                        buildlogbtn.prop('disabled',false);
+                    });
+                }
+
+                buildmodal.removeAttr('deployment_id');
+            });
+
+            deployment_table.on('post-body.bs.table', function(e, data) {
+                for (var i = 0; i < data.length; i++) {
+                    getDockerStatus(data[i][0]);
+                }
+            });
+
+            deployment_table.on('refresh.bs.table', function (e, params) {
+                refreshDeploymentTable();
+            });
+
+            deployment_table.bootstrapTable({
+                url: '{% url 'deployment_table' %}',
+                showRefresh: true,
+                search: true,
+                pagination: true,
+                columns: [{
+                    field: '1',
+                    title: '<i class="fa fa-trash-o" aria-hidden="true"></i>',
+                    align: 'center',
+                    searchable: false
+                }, {
+                    field: '0',
+                    title: 'ID',
+                    sortable: true
+                }, {
+                    field: '2',
+                    title: 'Honeypot',
+                    sortable: true
+                },{
+                    field: '3',
+                    title: 'Server',
+                    sortable: true,
+                    sortName: 'server'
+                }, {
+                    field: '4',
+                    title: 'Docker ID',
+                    sortable: true,
+                    width: '100%',
+                    sortName: 'dockerid'
+                }, {
+                    field: '5',
+                    title: 'Status',
+                    align: 'center',
+                    searchable: false
+                }, {
+                    field: '6',
+                    title: 'Actions',
+                    align: 'center',
+                    searchable: false
+                }, {
+                    field: '7',
+                    title: 'Logs',
+                    align: 'center',
+                    searchable: false
+                }]
+            });
+
+            deployment_table.on('all.bs.table', function(e, name, args) {
+                $(".tooltip").tooltip("hide");
+                initTooltip();
+            });
+
+            refreshDeploymentTable();
+        });
+    </script>
+</body>
+
+</html>

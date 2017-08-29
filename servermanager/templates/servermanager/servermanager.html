@@ -1,0 +1,380 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+
+    <div id="wrapper">
+
+        {% include '_navbar.html' %}
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="glyphicon glyphicon-th-list"></i> Manage Servers</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                {% if taken %}
+                <div class="alert alert-info">
+                    Error: IP address is already being used
+                </div>
+            {% endif %}
+            {% if taken2 %}
+                <div class="alert alert-info">
+                    Error: Name is being used
+                </div>
+            {% endif %}
+            {% if fail %}
+                <div class="alert alert-info">
+                    Error: Something went wrong, please re-check parameters
+                </div>
+            {% endif %}
+
+                    <div class="clearfix">
+						<div class="pull-right">
+							<button type="button" class="btn btn-default" onclick="addModal_open()"><span class="glyphicon glyphicon-plus"></span> Add</button>
+						</div>
+					</div>
+					<br />
+
+                    {% if sshCreds %}
+					<div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="table"></table>
+					</div>
+                </div>
+            </div>
+            <!-- /.row -->
+            {% else %}
+            <div class="alert alert-info">
+                There are no servers currently.
+            </div>
+            {% endif %}
+
+            <div id="confirm_modal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Confirmation</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete "<span id="confirm_modal_name"></span>" (ID=<span id="confirm_modal_id"></span>)</p>
+                        <hr>
+                        <form class="form-horizontal" action="" method="post" id="deleteform">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="cleanup" id="cleanup"> Cleanup</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-danger" id="confirm_modal_button" form="deleteform">Yes</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="servermanagerform_modal" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="servermanagerform_loading">
+                                <small><i class="fa fa-circle-o-notch fa-spin"></i></small> Loading
+                            </div>
+                            <div class="hidden" id="servermanagerform_container">
+                                <form action="" class="form-horizontal" id="servermanagerform" method="post" autocomplete="off" spellcheck="false" data-toggle="validator">
+                                    {% csrf_token %}
+                                    <br>
+                                    <input type="hidden" name="id" id="id">
+                                    <div class="form-group">
+										<label class="control-label col-sm-4" for="name">Name:</label>
+										<div class="col-sm-6">
+											<input type="text" class="form-control" id="name" name="name" data-toggle="tooltip" data-placement="top" title="Give the server a name" placeholder="Server 1" data-required-error="Required" required>
+										    <div class="help-block with-errors"></div>
+                                        </div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-4" for="ip">IP:</label>
+										<div class="col-sm-6">
+											<input type="text" class="form-control" id="ip" name="ip" placeholder="123.456.789.1" data-required-error="Required" data-pattern-error="Invalid IP Address" pattern="^[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}$" required>
+                                            <div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-4" for="port">Port:</label>
+										<div class="col-sm-6">
+											<input type="number" name="port" class="form-control" id="port" value="22" data-required-error="Required" required>
+										    <div class="help-block with-errors"></div>
+                                        </div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-4" for="username">Username:</label>
+										<div class="col-sm-6">
+											<input type="text" class="form-control" id="username" name="username" data-required-error="Required" data-pattern-error="Invalid Username" pattern="^[^\s]+$" required>
+                                            <div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-sm-4" for="password">Password:</label>
+										<div class="col-sm-6">
+											<input type="password" class="form-control" id="password" name="password" data-required-error="Required" required>
+                                            <div class="help-block with-errors"></div>
+										</div>
+									</div>
+                                    <div class="form-group">
+										<label class="control-label col-sm-4" for="servertype">Type:</label>
+										<div class="col-sm-3">
+											<select class="form-control" id="servertype" name="servertype" data-required-error="Required" required>
+                                                <option value=""></option>
+												<option value="honeypots">Honeypots</option>
+												<option value="scanning">Scanning</option>
+											</select>
+                                            <div class="help-block with-errors"></div>
+										</div>
+									</div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-default" form="servermanagerform" id="servermanagerform_submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loadingModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog">
+                <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Installing prerequisites...</h4>
+                        </div>
+                        <div class="modal-body">
+                            <h4 id='loadingtext' class="modal-title"></h4>
+                            <div class="progress progress-striped active ">
+                                <div class="progress-bar progress-bar-info" role="progressbar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+    {% include '_scripts.html' %}
+
+    <script>
+        var servermanagerform;
+        var servermanagerform_modal;
+        var servermanagerform_modal_title;
+        var servermanagerform_loading;
+        var servermanagerform_container;
+        var servermanagerform_submit;
+
+        var servermanagerform_ip;
+        var servermanagerform_servertype;
+
+        function addModal_reset() {
+            servermanagerform.trigger("reset");
+            servermanagerform_modal_title.html('');
+            servermanagerform_loading.removeClass('hidden');
+            servermanagerform_container.addClass('hidden');
+            servermanagerform_submit.addClass('hidden');
+
+            servermanagerform_ip.attr('disabled',false);
+            servermanagerform_servertype.attr('disabled',false);
+
+            elements = ['#id','#name','#logpath', '#imagename','#portmappings','#giturl','#folder','#gendockerscript','#logpattern','#binariespath','#script'];
+            for (i = 0; i < elements.length; i++) {
+                var e = $(elements[i]);
+            }
+
+            servermanagerform_submit.prop('disabled',false);
+        }
+
+        function addModal_showform() {
+            servermanagerform_loading.addClass('hidden');
+            servermanagerform_container.removeClass('hidden');
+            servermanagerform_submit.removeClass('hidden');
+        }
+
+        function addModal_open(sshCred_id) {
+            addModal_reset();
+
+            var title;
+            var action;
+            var button;
+
+            if ((typeof sshCred_id) == 'undefined') {
+                title = 'Add Server';
+                action = '{% url 'addssh' %}';
+                button = 'Add';
+
+                addModal_showform();
+            } else {
+                title = 'Edit Server (ID=' + sshCred_id + ')';
+
+                action = '{% url 'editssh' %}';
+                button = 'Save';
+
+                servermanagerform_ip.attr('disabled',true);
+                servermanagerform_servertype.attr('disabled',true);
+
+                url = '{% url 'sshjson' %}';
+                $.getJSON(url,function(result) {
+                    for (i = 0; i < result.length; i++) {
+                        var id = result[i].ID;
+                        if (id == sshCred_id) {
+                            var name = result[i].Name;
+                            var ip = result[i].IP;
+                            var port = result[i].Port;
+                            var username = result[i].Username;
+                            var password = result[i].Password;
+                            var servertype = result[i].Type;
+
+                            elements = {
+                                '#id': id,
+                                '#name': name,
+                                '#ip': ip,
+                                '#port': port,
+                                '#username': username,
+                                '#password': password,
+                                '#servertype': servertype
+                            };
+
+                            for (var key in elements) {
+                                var e = servermanagerform.find(key);
+                                var v = elements[key];
+                                e.val(v);
+                            }
+
+                            addModal_showform();
+
+                            break;
+                        }
+                    }
+                });
+            }
+
+            servermanagerform.attr('action', action);
+            servermanagerform_modal_title.html(title);
+            servermanagerform_submit.html(button);
+            servermanagerform_modal.modal();
+
+            initModalScroll(servermanagerform_modal);
+        }
+
+        $(document).ready(function() {
+            servermanagerform = $('#servermanagerform');
+            servermanagerform_modal = $('#servermanagerform_modal');
+            servermanagerform_modal_title = servermanagerform_modal.find('.modal-title');
+            servermanagerform_loading = $('#servermanagerform_loading');
+            servermanagerform_container = $('#servermanagerform_container');
+            servermanagerform_submit = $('#servermanagerform_submit');
+
+            servermanagerform_ip = servermanagerform.find('#ip');
+            servermanagerform_servertype = servermanagerform.find('#servertype');
+
+            servermanagerform.validator().on('submit', function(e) {
+                if (!e.isDefaultPrevented()) {
+                    servermanagerform_modal.modal('hide');
+                    loadingbar(this);
+                }
+            });
+
+            $('#confirm_modal').on('shown.bs.modal', function(e) {
+                var confirm_modal_id = $('#confirm_modal_id');
+                var id = confirm_modal_id.text();
+
+                if (id) {
+                    var deleteform = $('#deleteform');
+                    var url = '{% url "delete" %}' + id + '/';
+
+                    deleteform.attr('action',url);
+                }
+            })
+        });
+    </script>
+
+    <script>
+        var loadingModal = $('#loadingModal');
+        function refreshtext() {
+            $.getJSON("{%url 'loading'%}", function(result){
+                var lines = result.lines;
+                $('#loadingtext').html(lines);
+				setTimeout(loadingbar, 10);
+			});
+        }
+        function loadingbar(e) {
+            if (!isDisabled(e)) {
+                loadingModal.modal('show');
+                refreshtext();
+            }
+		}
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#table').bootstrapTable({
+                url: '{% url 'sshtable' %}',
+                showRefresh: 'true',
+                pagination: 'true',
+                search: 'true',
+                sortable: 'true',
+                columns: [
+                    {
+                        field: 'Index',
+                        title: '<i class="fa fa-trash-o" aria-hidden="true"></i>',
+                        align: 'center'
+                    },{
+                        title: 'Name',
+                        field: 'Name',
+                        sortable: 'true',
+                        width: '50%'
+                    },{
+                        title: 'IP',
+                        field: 'IP',
+                        sortable: 'true',
+                        width: '50%'
+                    },{
+                        title: 'Username',
+                        field: 'Username',
+                        sortable: 'true'
+                    },{
+                        title: 'Port',
+                        field: 'Port',
+                        sortable: 'true'
+                    },{
+                        title: 'Type',
+                        field: 'Type',
+                        sortable: 'true'
+                    },{
+                        title: 'Actions',
+                        field: 'Actions',
+                        align: 'center'
+                    }
+                ]
+            });
+        });
+    </script>
+</body>
+
+</html>

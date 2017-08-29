@@ -1,0 +1,310 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+
+<body>
+
+<div id="wrapper">
+
+    {% include '_navbar.html' %}
+
+    {% if error %}
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="glyphicon glyphicon-th-list"></i> Details</h1>
+                </div>
+            </div>
+            <div class="alert alert-info">
+                File is empty
+            </div>
+        </div>
+
+    {% else %}
+
+    {% if type == "masscan" %}
+
+        <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header"><i class="glyphicon glyphicon-th-list"></i> Details</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="clearfix">
+                    <div class="pull-right">
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ShodanModal"><span class="glyphicon glyphicon-plus"></span> Use
+                                Shodan
+                            </button>
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ScanningModal">
+                            <span class="glyphicon glyphicon-plus"></span> Use Nmap
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="ShodanModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Shodan Search</h4>
+                            </div>
+                            <form action="{% url 'shodan_masscan' %}" method="post" class="form-horizontal">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <label>Which API Key to use:</label>
+                                    <select class="form-control" id="apikey" name="apikey" data-required-error="Required" required>
+                                        {% for i in apikey%}
+                                            <option value="{{ i.key }}">{{ i.key }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="ScanningModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">NMAP scan</h4>
+                            </div>
+                            <form action="{% url 'nmap_masscan' %}" method="post" class="form-horizontal">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <label>Which Server to use:</label>
+                                    {% for i in serverip %}
+                                        <input type="hidden" value="{{ i.username }}" name="username">
+                                        <input type="hidden" value="{{ i.port }}" name="serverport">
+                                    {% endfor %}
+                                    <select class="form-control" id="server" name="server" data-required-error="Required" required>
+                                        {% for i in serverip %}
+                                            <option value="{{ i.ip }}">{{ i.name }} ({{ i.ip }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br/>
+
+
+                <div class="table-responsive">
+                    <table id="table1" data-search="true"
+                                   data-pagination="true">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Address</th>
+                            <th>Port</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for key,value in results.items %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ key }}</td>
+                                <td>{{ value }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if type == "nmap" %}
+        <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header"><i class="glyphicon glyphicon-th-list"></i> Details</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+
+                <br/>
+
+                <div class="table-responsive">
+                    <table id="myTable" data-search="true"
+                                   data-pagination="true" data-toggle="table" data-detail-view="true"
+                           data-detail-formatter="detailFormatter">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>IP Address</th>
+                            <th>Ports</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for host,ip,os,service,state,port,banner,count in lists %}
+
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="col-sm-2">{{ ip }}</td>
+                            <td>{{ host }}</td>
+                            <td>
+                                {% for pt in port %}
+                                {% if forloop.last %}
+                                    {{ pt }}
+                                {% else %}
+                                    {{ pt }},
+                                {% endif %}
+
+                                {% endfor %}
+                            </td>
+                            <!-- id number is generated by tt_template -->
+                            <span style="display: none;" id="desc{{count}}">
+                            <div class="row">
+                                <div class="col-sm-1">
+                                <strong class="bold">Port:</strong>
+                                {% for p in port %}
+                                    <p>{{ p }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-xs-1" style="width:12.5%">
+                                <strong class="bold">Name:</strong>
+                                {% for i in service %}
+                                    <p>{{ i }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-1">
+                                <strong class="bold">State:</strong>
+                                {% for a in state %}
+                                    <p>{{ a }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-8">
+                                <strong class="bold">Banner:</strong>
+                                {% for b in banner %}
+                                    <p id="short">{{ b }}</p>
+                                    {% endfor %}
+                                </div>
+                            <style>
+                                #short{
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+                            </style>
+                            </div>
+                            <br>
+                            <strong class="bold">Operating System Guess:</strong>
+                                {% for o in os %}
+                                <p>{{ o }}</p>
+                                {% endfor %}
+                            </span>
+                        </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <!-- /.row -->
+    </div>
+    <!-- /#page-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+{% endif %}
+
+    {% include '_scripts.html' %}
+    <script>
+        var $table = $('#myTable');
+
+        $table.on('expand-row.bs.table', function (e, index, row, $detail) {
+            var res = $("#desc" + index).html();
+            $detail.html(res);
+        });
+
+        $table.on("click-row.bs.table", function (e, row, $tr) {
+
+            console.log("Clicked on: " + $(e.target).attr('class'), [e, row, $tr]);
+
+
+            if ($tr.next().is('tr.detail-view')) {
+                $table.bootstrapTable('collapseRow', $tr.data('index'));
+            } else {
+                $table.bootstrapTable('expandRow', $tr.data('index'));
+            }
+        });
+
+    </script>
+<script>
+    $('#table1').bootstrapTable({
+
+                columns: [
+                    {
+                        title: '#',
+                        sortable: true,
+                        align: 'center'
+                    },
+
+                    {
+                        title: 'IP Address',
+                        sortable: true,
+                        width: '60%'
+                    },
+                    {
+                        title: 'Ports',
+                        sortable: true,
+                        width: '40%'
+                    }
+                ]
+            });
+</script>
+<script>
+    $('#myTable').bootstrapTable({
+
+                columns: [
+                    {
+                        title: '#',
+                        sortable: true,
+                        align: 'center'
+                    },
+
+                    {
+                        title: 'IP Addresses',
+                        sortable: true,
+                        width: '40%'
+                    },
+                    {
+                        title: 'Host Name',
+                        sortable: true,
+                        width: '30%'
+                    },
+                    {
+                        title: 'Port',
+                        sortable: true,
+                        width: '30%'
+                    }
+                ]
+            });
+</script>
+</div>
+</body>
+
+</html>

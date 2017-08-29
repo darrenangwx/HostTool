@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.01 scan initiated Tue Aug 15 02:15:45 2017 as: nmap -T4 -sSV -O -Pn -oX /root/HOSTTools/nmap/nmap_masscan_2017.08.15_02.15.45.xml -iL /root/HOSTTools/nmap/iplist.txt -p 80,443, -->
+<nmaprun scanner="nmap" args="nmap -T4 -sSV -O -Pn -oX /root/HOSTTools/nmap/nmap_masscan_2017.08.15_02.15.45.xml -iL /root/HOSTTools/nmap/iplist.txt -p 80,443," start="1502763345" startstr="Tue Aug 15 02:15:45 2017" version="7.01" xmloutputversion="1.04">
+<scaninfo type="syn" protocol="tcp" numservices="2" services="80,443"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1502763346" endtime="1502763375"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="209.246.150.171" addrtype="ipv4"/>
+<hostnames>
+<hostname name="unknown.Level3.net" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="248"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+<port protocol="tcp" portid="443"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<osmatch name="Cisco ACE load balancer" accuracy="85" line="12436">
+<osclass type="load balancer" vendor="Cisco" osfamily="embedded" accuracy="85"/>
+</osmatch>
+<osmatch name="Nokia N81 mobile phone (Symbian OS)" accuracy="85" line="78645">
+<osclass type="phone" vendor="Nokia" osfamily="Symbian OS" accuracy="85"><cpe>cpe:/h:nokia:n81</cpe><cpe>cpe:/o:nokia:symbian_os</cpe></osclass>
+</osmatch>
+</os>
+<tcpsequence index="259" difficulty="Good luck!" values="97D65660,924F5A92,958AD067,90F3DC95,D68734BE"/>
+<ipidsequence class="Incremental" values="1A3F,1A40,1A41,1A42,1A43"/>
+<tcptssequence class="none returned (unsupported)"/>
+<times srtt="220637" rttvar="17894" to="292213"/>
+</host>
+<host starttime="1502763346" endtime="1502763375"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="209.217.72.99" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="104"/><service name="http" product="Lotus Domino httpd" method="probed" conf="10"><cpe>cpe:/a:ibm:lotus_domino_web_server</cpe></service></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="104"/><service name="http" product="Lotus Domino httpd" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:ibm:lotus_domino_web_server</cpe></service></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<osmatch name="Microsoft Windows Server 2008 or 2008 Beta 3" accuracy="100" line="65483">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::beta3</cpe><cpe>cpe:/o:microsoft:windows_server_2008</cpe></osclass>
+</osmatch>
+<osmatch name="Windows Server 2008 R2" accuracy="100" line="66219">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008:r2</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows 7 Professional or Windows 8" accuracy="100" line="67197">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::-:professional</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8" accuracy="100"><cpe>cpe:/o:microsoft:windows_8</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows Embedded Standard 7" accuracy="100" line="68082">
+<osclass type="specialized" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows Phone 7.5 or 8.0" accuracy="100" line="69344">
+<osclass type="phone" vendor="Microsoft" osfamily="Windows" osgen="Phone" accuracy="100"><cpe>cpe:/o:microsoft:windows</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows Vista SP0 or SP1, Windows Server 2008 SP1, or Windows 7" accuracy="100" line="70010">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="Vista" accuracy="100"><cpe>cpe:/o:microsoft:windows_vista::-</cpe><cpe>cpe:/o:microsoft:windows_vista::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows Vista SP2, Windows 7 SP1, or Windows Server 2008" accuracy="100" line="70282">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="Vista" accuracy="100"><cpe>cpe:/o:microsoft:windows_vista::sp2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008</cpe></osclass>
+</osmatch>
+</os>
+<uptime seconds="5265827" lastboot="Thu Jun 15 03:32:28 2017"/>
+<tcpsequence index="260" difficulty="Good luck!" values="CC60A4FB,AFEA8065,10540782,16EE5403,5A5424D7,1208D04F"/>
+<ipidsequence class="Incremental" values="6BF3,6BF4,6BF5,6BF6,6BF7,6BF8"/>
+<tcptssequence class="100HZ" values="1F62FF4D,1F62FF57,1F62FF61,1F62FF7E,1F62FF88,1F62FF93"/>
+<times srtt="252898" rttvar="28399" to="366494"/>
+</host>
+<host starttime="1502763346" endtime="1502763375"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="217.151.2.5" addrtype="ipv4"/>
+<hostnames>
+<hostname name="champagne-x-agences.poliris.net" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="236"/><service name="http" product="Microsoft IIS httpd" version="8.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:8.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="236"/><service name="https" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="443"/>
+<osmatch name="Citrix NetScaler load balancer" accuracy="94" line="17152">
+<osclass type="load balancer" vendor="Citrix" osfamily="embedded" accuracy="94"/>
+</osmatch>
+</os>
+<tcpsequence index="262" difficulty="Good luck!" values="5C0FF157,878DA1CE,FE6EBA6C,BBEC2C61,C2EF37C3,D64D042E"/>
+<ipidsequence class="Randomized" values="27E9,27EA,83F8,83F9,27EB,27EC"/>
+<tcptssequence class="none returned (unsupported)"/>
+<times srtt="328592" rttvar="8059" to="360828"/>
+</host>
+<host starttime="1502763346" endtime="1502763375"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="46.105.239.217" addrtype="ipv4"/>
+<hostnames>
+<hostname name="hid-z2.idep.us" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="47"/><service name="http" product="Apache httpd" version="2.2.16" extrainfo="(Debian)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.16</cpe></service></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="47"/><service name="https" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="443"/>
+<portused state="closed" proto="udp" portid="40889"/>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="100" line="50751">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+</os>
+<uptime seconds="41146" lastboot="Mon Aug 14 14:50:29 2017"/>
+<distance value="17"/>
+<tcpsequence index="263" difficulty="Good luck!" values="6E1356D9,788940F8,EF184367,4532A5CD,CFA5C255,478E9DF7"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="273A9BA,273AA22,273AAE9,273ABBC,273AC11,273AC77"/>
+<times srtt="328126" rttvar="15999" to="392122"/>
+</host>
+<runstats><finished time="1502763375" timestr="Tue Aug 15 02:16:15 2017" elapsed="31.25" summary="Nmap done at Tue Aug 15 02:16:15 2017; 4 IP addresses (4 hosts up) scanned in 31.25 seconds" exit="success"/><hosts up="4" down="0" total="4"/>
+</runstats>
+</nmaprun>

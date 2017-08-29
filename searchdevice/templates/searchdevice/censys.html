@@ -1,0 +1,123 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+<body>
+<div id="wrapper">
+    {% include '_navbar.html' %}
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header"><i class="glyphicon glyphicon-globe"></i> OSINT (Censys)</h1>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <div class="row">
+            {% block error_message %}
+                {% if error_message %}
+                    <div class='alert alert-danger'>{{ error_message }}</div>{% endif %}
+            {% endblock %}
+            <div class="col-lg-12">
+                <form class="form-horizontal col-md-10 col-md-offset-1" method="post" data-toggle="validator">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="censys_uid">Censys UID:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" style="width: 100%" name="UID" id="censys_uid" required>
+                                {% for key in api_keys %}
+                                    <option> {{ key.key }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="secret">API Secret</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="secret" name="secret"
+                                   placeholder="API Secret" value="{% if api_secret %}{{ api_secret }}{% endif %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="search">Search</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="search" name="query" placeholder="Apache"
+                                   value="{% if query %}{{ query }}{% endif %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-right">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button class="btn btn-default">Query Censys</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr>
+
+
+        {# If there's no error for API and Query is entered by user #}
+        {% if not error_message and query%}
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Search Results for "{{ query }}"</div>
+                        <div class="panel-body">
+                            <div id="loading" style="text-align: center;">
+                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                                Loading
+                            </div>
+                            <table id="table" data-search="true"
+                            data-pagination="true">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <!-- /.row -->
+    </div>
+    <!-- /#page-wrapper -->
+</div>
+<!-- /#wrapper -->
+
+{% include '_scripts.html' %}
+
+<script>
+    $.getJSON('{% url 'censys_api' %}?UID={{ api_key }}&secret={{ api_secret }}&query={{ query }}', function (jsonFromFile) {
+        $('#table').bootstrapTable({
+            data: jsonFromFile.results,
+            columns: [
+                {
+                    field: 'ip',
+                    title: 'IP',
+                    sortable: 'true',
+                    formatter: 'LinkFormatter'
+                },
+                {
+                    field: 'location.country',
+                    title: 'Country',
+                    sortable: 'true'
+                },
+                {
+                    field: 'protocols',
+                    title: 'Protocols',
+                    sortable: 'true'
+                }
+            ]
+        });
+        // Hide loading icon when finish loading.
+        $('#loading').hide();
+    });
+
+    function LinkFormatter(value, row, index) {
+        return "<a href='{% url 'censys_details' %}?ip=" + value + "&api_key={{ api_key }}&api_secret={{ api_secret }}'>" + value + "</a>";
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+<form method="post">
+    {% csrf_token %}
+    API Key: <input name="api_key" value="{% if api_key %}{{ api_key }}{% endif %}">
+    <input type="submit">
+</form>
+
+{% block error_message%}
+    {% if error_message %}<div class='error_message'>{{ error_message }}</div>{% endif %}
+{% endblock %}
+
+{% for key,value in api_status.items %}
+    {{ key }} -- {{ value }}
+{% endfor %}
+
+{# Must have the API checked before you can access other functions such as query #}
+{% if checked %}
+    <form method="post">
+    {% csrf_token %}
+        <input type="hidden" name="api_key_validated" value="{{ api_key }}">
+    Query : <input name="query">
+    <input type="submit">
+    </form>
+{% endif %}

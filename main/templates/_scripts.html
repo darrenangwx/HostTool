@@ -1,0 +1,142 @@
+{% load staticfiles %}
+
+<!-- jQuery -->
+<script src="{% static '/js/jquery-3.2.1.min.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static '/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="{% static '/vendor/metisMenu/metisMenu.min.js' %}"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="{%  static '/dist/js/sb-admin-2.js' %}"></script>
+
+<script src="{%  static '/js/bootstrap-table.js' %}"></script>
+<script src="{% static '/js/bootstrap-slider.min.js' %}"></script>
+
+<script src="{% static '/js/pure.js' %}"></script>
+<script src="{% static '/js/jquery-jvectormap-2.0.3.min.js' %}"></script>
+<script src="{% static '/js/jquery-jvectormap-world-mill.js' %}"></script>
+
+<script src="{% static '/js/validator.min.js' %}"></script>
+
+<script src="{% static '/js/clipboard.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static '/js/loader.js' %}"></script>
+
+<script type="text/javascript" src="{% static '/js/jquery.slimscroll.min.js' %}"></script>
+
+<script>
+    function initTooltip() {
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body'
+            });
+
+            $('[data-toggle="popover"]').popover({
+                container: 'body'
+            });
+        });
+    }
+    initTooltip();
+
+    var clipboard = new Clipboard('.btn');
+
+    function showConfirmModal(id,name,url) {
+        var confirm_modal = $('#confirm_modal');
+        var confirm_modal_id = $('#confirm_modal_id');
+        var confirm_modal_name = $('#confirm_modal_name');
+        var confirm_modal_button = $('#confirm_modal_button');
+
+        confirm_modal_button.off('click');
+
+        confirm_modal_id.html(id);
+        confirm_modal_name.html(name);
+        confirm_modal_button.click(function () {
+            window.location.replace(url);
+        });
+        confirm_modal.modal();
+    }
+
+    function isDisabled(e) {
+        var disabled = false;
+        if ($(e).hasClass("disabled") || $(e).prop('disabled')) {
+            disabled = true;
+        }
+
+        return disabled
+    }
+
+    function textCheckboxRemove(id) {
+        var input = '#' + id;
+        var e = $(input);
+        var inputgrp = e.parent();
+        var checkboxgrp = inputgrp.find('.input-group-addon');
+
+        e.prop('disabled',false);
+
+        var checkbox = $(input + '_checkbox');
+        if (checkbox.length > 0) {
+            checkboxgrp.remove();
+        }
+        inputgrp.removeClass('input-group');
+    }
+
+    function textCheckbox(id) {
+        var input = '#' + id;
+
+        var e = $(input);
+        var inputgrp = e.parent();
+
+        var checkbox_id = input + '_checkbox';
+        var checkbox = $(checkbox_id);
+        if (checkbox.length == 0) {
+            inputgrp.addClass('input-group');
+            inputgrp.append('<span class="input-group-addon"><input type="checkbox" id="' + checkbox_id.substr(1) + '"></span>');
+
+            checkbox = $(checkbox_id);
+        }
+
+        checkbox.off('change');
+
+        e.prop('disabled',false);
+        checkbox.prop('checked',false);
+
+        if (e.val()) {
+            checkbox.prop('checked',true);
+        } else {
+            e.prop('disabled',true);
+        }
+
+        if (e.prop('readonly')) {
+            checkbox.prop('disabled',true);
+        } else {
+            checkbox.prop('disabled',false);
+
+            checkbox.change(function() {
+                if (!isDisabled(this)) {
+                    var disabled = !this.checked;
+                    e.prop('disabled', disabled);
+
+                    if (disabled) {
+                        e.val('');
+                    }
+                }
+            });
+        }
+    }
+
+    function initModalScroll(modal) {
+        var body = modal.find('.modal-body');
+        var height = $(window).height() * 0.7;
+
+        body.slimscroll({
+            destroy: true
+        });
+
+        body.slimscroll({
+            height: height
+        });
+    }
+</script>

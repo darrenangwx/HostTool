@@ -1,0 +1,6 @@
+paramiko
+python-nmap
+requests
+django
+nmap-parser
+python-libnmap

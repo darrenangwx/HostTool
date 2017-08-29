@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- masscan v1.0 scan -->
+<?xml-stylesheet href="" type="text/xsl"?>
+<nmaprun scanner="masscan" start="1502761255" version="1.0-BETA"  xmloutputversion="1.03">
+<scaninfo type="syn" protocol="tcp" />
+<host endtime="1502761255"><address addr="149.100.11.62" addrtype="ipv4"/><ports><port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="44"/></port></ports></host>
+<host endtime="1502761255"><address addr="149.100.11.62" addrtype="ipv4"/><ports><port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="44"/></port></ports></host>
+<host endtime="1502761255"><address addr="149.100.11.62" addrtype="ipv4"/><ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="44"/></port></ports></host>
+<host endtime="1502761255"><address addr="149.100.11.62" addrtype="ipv4"/><ports><port protocol="tcp" portid="8888"><state state="open" reason="syn-ack" reason_ttl="44"/></port></ports></host>
+<host endtime="1502761255"><address addr="149.100.11.62" addrtype="ipv4"/><ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="44"/></port></ports></host>
+<runstats>
+<finished time="1502761266" timestr="2017-08-15 01:41:06" elapsed="12" />
+<hosts up="5" down="0" total="5" />
+</runstats>
+</nmaprun>

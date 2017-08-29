@@ -1,0 +1,78 @@
+body {
+    overflow-wrap: break-word;
+}
+
+#navbar_logo {
+    display: inline-block;
+    height: 30px;
+    margin-top: -5px;
+    margin-right: 5px;
+}
+
+#return_to_prev {
+    margin-right: 3px;
+}
+
+#slider .slider-selection {
+    background: #BABABA;
+}
+
+.icon_colorgreen {
+    color: green;
+}
+
+.icon_colorred {
+    color: red;
+}
+
+.icon_colororange {
+    color: orange;
+}
+
+.icon_colorgreen {
+    color: green;
+}
+
+.icon_colorsteelblue {
+    color: steelblue;
+}
+
+.icon_colororangered {
+    color: orangered;
+}
+
+.viewbuildlog {
+    margin-top: 0.8em;
+}
+
+.viewlogs_button {
+    margin-top: 0.6em;
+    width: 100%;
+    display: block;
+}
+
+.deployment_topbuttons button {
+    width: 48%;
+}
+
+.flexdisplay {
+    display: flex;
+}
+
+.fullwidth {
+    width: 100%;
+}
+
+#speed {
+    margin-top: 0.2em;
+    margin-left: 1.5em;
+}
+
+#speed .slider-selection {
+    background: #BABABA;
+}
+
+#deployment_sshcred {
+    width: 100%;
+    text-align: left;
+}

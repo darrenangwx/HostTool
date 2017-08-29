@@ -1,0 +1,84 @@
+[
+  {
+    "model": "main.ApiType",
+    "fields": {
+      "id": 1,
+      "type_name": "Shodan"
+    }
+  },
+  {
+    "model": "main.ApiType",
+    "fields": {
+      "id": 2,
+      "type_name": "Censys"
+    }
+  },
+  {
+    "model": "honeypot.Honeypot",
+    "fields": {
+      "id": 1,
+      "name": "HoneyPy",
+      "log_path": "/opt/HoneyPy/log",
+      "imagename": "hosttool-honeypy",
+      "port_mappings": "7:10007, 8:10008, 21:10021, 2048:2048, 4096:4096, 9200:9200, 7:10007/udp, 8:10008/udp, 53:10053/udp",
+      "giturl": "",
+      "folder": "<FYP-Scripts>/HoneyPy-Docker",
+      "generatescript": "generate_dockerfile.sh",
+      "log_pattern": "^honeypy.log(\\..*)?$",
+      "binaries_path": "",
+      "script": "/opt/HoneyPy/Honey.py",
+      "default": "True"
+    }
+  },
+  {
+    "model": "honeypot.Honeypot",
+    "fields": {
+      "id": 2,
+      "name": "Dionaea",
+      "log_path": "/opt/dionaea/var/dionaea",
+      "imagename": "hosttool-dionaea",
+      "port_mappings": "21:21, 42:42, 69:69/udp, 80:80, 135:135, 443:443, 445:445, 1433:1433, 1723:1723, 1883:1883, 1900:1900/udp, 3306:3306, 5060:5060, 5060:5060/udp, 5061:5061, 11211:11211",
+      "giturl": "",
+      "folder": "<FYP-Scripts>/Dionaea/0.6",
+      "generatescript": "",
+      "log_pattern": "^dionaea(.*)?.(log|sqlite)$",
+      "binaries_path": "/opt/dionaea/var/dionaea/binaries",
+      "script": "",
+      "default": "True"
+    }
+  },
+  {
+    "model": "honeypot.Honeypot",
+    "fields": {
+      "id": 3,
+      "name": "Cowrie",
+      "log_path": "/cowrie/cowrie-git/log",
+      "imagename": "cowrie",
+      "port_mappings": "22:2222",
+      "giturl": "https://github.com/micheloosterhof/docker-cowrie.git",
+      "folder": "",
+      "generatescript": "",
+      "log_pattern": "",
+      "binaries_path": "/cowrie/cowrie-git/dl",
+      "script": "",
+      "default": "True"
+    }
+  },
+  {
+    "model": "honeypot.Honeypot",
+    "fields": {
+      "id": 4,
+      "name": "Kippo",
+      "log_path": "/kippo-app/log/tty",
+      "imagename": "tomdesinto/kippo",
+      "port_mappings": "22:2222",
+      "giturl": "",
+      "folder": "",
+      "generatescript": "",
+      "log_pattern": "",
+      "binaries_path": "/kippo-app/dl",
+      "script": "",
+      "default": "True"
+    }
+  }
+]

@@ -1,0 +1,419 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+
+<body>
+<div id="wrapper">
+    {% include '_navbar.html' %}
+    <div id="page-wrapper">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header"><i class="glyphicon glyphicon-globe"></i> OSINT (Shodan)</h1>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                {% block error_message %}
+                    {% if error_message %}
+                        <div class='alert alert-danger'>{{ error_message }}</div>{% endif %}
+                {% endblock %}
+
+                {% block success_message %}
+                    {% if success_message %}
+                        <div class='alert alert-success'>Query Success, {{ success_message.unlocked_left }}
+                            / {{ success_message.scan_credits }} credits left.
+                        </div>{% endif %}
+                {% endblock %}
+
+
+                <div class="col-md-8 col-md-offset-2">
+
+                    <form method="post" data-toggle="validator">
+                        {% csrf_token %}
+                        <div class="form-group form-inline">
+                            <div class="col-xs-10">
+                                <select class="form-control" style="width: 100%" name="api_key" required>
+                                    {% for key in api_keys %}
+                                        <option> {{ key.key }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <br/>
+                        <br/>
+
+                        <div class="form-group form-inline">
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" style="width:100%" name="query"
+                                       value="{% if query_title %}{{ query_title }}{% endif %}" required>
+                            </div>
+                            <div class="col-xs-1" style="margin-left:-1.8em">
+                                <input type="submit" class="btn btn-default" value="Search" required>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top:-1em;margin-left:0.5em;">
+                            <button type="button" class="btn btn-link btn-sm" data-toggle="collapse"
+                                    data-target="#adv_option">Advanced Options <span
+                                    class="glyphicon glyphicon-triangle-right adv_opt_gly"></span></button>
+                            <div id="adv_option" class="collapse">
+                                <ul>
+                                    <p>Filters examples:</p>
+                                    <li>
+                                        For specific countries: apache country:SG
+                                    </li>
+                                    <li>
+                                        For specific ports: apache country:80
+                                    </li>
+                                    <li>
+                                        For specific version: samba version:4.4.5
+                                    </li>
+                                    <li> Different filters can be concatenated such as samba version:4.4.5 country:US
+                                    </li>
+                                </ul>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {% if status_values %}
+            <!-- Bootstrap Table for data queries -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Search Results for "{{ query_title }}"
+                            <div class="pull-right matches">Matches:</div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="loading" style="text-align: center;">
+                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                                Loading
+                            </div>
+                            <table id="table" data-show-refresh="true" data-show-columns="true" data-search="true"
+                                   data-pagination="true">
+
+                                <ul class="pager">
+                                    <input type="hidden" class="pageNum" value="1">
+                                    <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span> Older</a>
+                                    </li>
+                                    <li class="next"><a href="#">Newer <span aria-hidden="true">&rarr;</span></a></li>
+                                </ul>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Total hit counts -->
+            <div class="row">
+            <div class="col-md-3 topcountries">
+                <ul class="list-group">
+                    <p>Top countries:</p>
+                    <li class="list-group-item">
+                        <span class="country_name"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>
+
+                        <img src="" class="flag" style="width: 20%;height: 20%;"/>
+
+                        <span
+                                class="badge country_count"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-md-3 versions">
+                <ul class="list-group">
+                    <p>Version:</p>
+                    <li class="list-group-item">
+                        <span class="version_number"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span><span
+                            class="badge version_count"><small><i
+                            class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6 organisations">
+                <ul class="list-group">
+                    <p>Organisation</p>
+                    <li class="list-group-item">
+                        <span class="organisation_name"><small><i
+                                class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span><span
+                            class="badge organisation_count"><small><i
+                            class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-md-12">
+                <div id="world-map" align="center" style="width: 100%; height: 450px;"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="version_chart" style="width: 100%; height: 450px;"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="org_chart" style="width: 100%; height: 450px;"></div>
+            </div>
+
+        {% endif %}
+        <!-- /.row -->
+
+        </div>
+
+
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+{% include '_scripts.html' %}
+
+<script>
+    // If advance option is clicked, the triangle icon change!
+    $('#adv_option').on('shown.bs.collapse', function () {
+        $(".adv_opt_gly").removeClass("glyphicon glyphicon-triangle-right").addClass("glyphicon glyphicon-triangle-bottom");
+    });
+    $('#adv_option').on('hidden.bs.collapse', function () {
+        $(".adv_opt_gly").removeClass("glyphicon glyphicon-triangle-bottom").addClass("glyphicon glyphicon-triangle-right");
+    });
+
+
+    // When next button is click.. Go to next 100 records
+    $('.next').click(function () {
+        var pageNum = parseInt($('.pageNum').val());
+        $('.pageNum').val(pageNum + 1);
+        console.log($('.pageNum').val());
+        $('#loading').show();
+        $('#table').bootstrapTable('destroy');
+        getJSON();
+    });
+
+    // When previous button is click.. .. Go to the previous 100 records
+    $('.previous').click(function () {
+        var pageNum = parseInt($('.pageNum').val());
+        $('.pageNum').val(pageNum - 1);
+        console.log($('.pageNum').val());
+        $('#loading').show();
+        $('#table').bootstrapTable('destroy');
+        getJSON();
+    });
+
+    // The awesomeness is being initialised!
+    getJSON();
+    getTopCountries();
+    getTopVersions();
+    getTopOrganisations();
+    data_visualisation();
+
+    // Get data from Shodan!
+    function getJSON() {
+        $.getJSON("https://api.shodan.io/shodan/host/search?key={{ api_key }}&query={{ query_title }}&page=" + $('.pageNum').val() + "", function (jsonFromFile) {
+
+            // Debug input link..
+            //console.log("https://api.shodan.io/shodan/host/search?key={{ api_key }}&query={{ query_title }}&page=" + $('.pageNum').val() + "");
+
+            // Get total[] results from shodan api. Number of hits from the query.
+            $('.matches').html('Matches: ' + jsonFromFile.total);
+
+            // Push matches[] to bootstrap table to be more organise,
+
+            $('#table').bootstrapTable({
+                data: jsonFromFile.matches,
+                columns: [
+                    {
+                        field: 'ip_str',
+                        title: 'IP',
+                        sortable: 'true',
+                        // Make ip clickable through this function.
+                        formatter: 'LinkFormatter'
+                    },
+
+                    {
+                        field: 'location.country_name',
+                        title: 'Country',
+                        sortable: 'true'
+                    },
+                    {
+                        field: 'product',
+                        title: 'Product',
+                        sortable: 'true'
+                    }
+                ]
+            });
+
+            // Hide loading icon when finish loading.
+            $('#loading').hide();
+        })
+    }
+
+    // Make IP Column clickable on bootstrap table.
+    function LinkFormatter(value, row, index) {
+        return "<a href='{% url 'shodan_details' %}?ip=" + value + "&api_key={{ api_key }}'>" + value + "</a>";
+    }
+
+    // Visualisation for OSINT
+    function data_visualisation() {
+        // Get JSON data for top 100 countries
+        $.getJSON("https://api.shodan.io/shodan/host/count?key={{ api_key }}&query={{ query_title }}&facets=country:1000,version:1000", function (visualisationData) {
+
+            // Declare countryHits & versionHits to be put inside the visualisation
+            var countryHits = {};
+            var versionHits = [];
+            var organisationHits = [];
+
+            // Loop through the json data return.. Then pump it into the gdpData{} variable
+            $.each(visualisationData.facets.country, function (index) {
+                // .value = Country name, .count = Total count.
+
+                // Pumping every objects into the visualisation map..
+                countryHits[visualisationData.facets.country[index].value] = visualisationData.facets.country[index].count
+            });
+
+            // Google chart
+
+            // Version hits on google Chart
+            $.getJSON("https://api.shodan.io/shodan/host/count?key={{ api_key }}&query={{ query_title }}&facets=version:1000", function (visualiseVersion) {
+                versionHits.push(['Version', 'Count'])
+                $.each(visualiseVersion.facets.version, function (index) {
+                    versionHits.push([visualiseVersion.facets.version[index].value, visualiseVersion.facets.version[index].count])
+                });
+
+
+                google.charts.load('current', {'packages': ['corechart']});
+                google.charts.setOnLoadCallback(drawChart);
+                google.charts.load('current', {'packages': ['corechart']});
+                google.charts.setOnLoadCallback(drawChart);
+
+
+                function drawChart() {
+                    var data = google.visualization.arrayToDataTable(versionHits);
+                    var options = {
+                        title: 'Version %',
+                        sliceVisibilityThreshold: .02
+
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('version_chart'));
+
+                    chart.draw(data, options);
+                }
+            });
+
+
+            // Organisation hits on Google Chart
+            $.getJSON("https://api.shodan.io/shodan/host/count?key={{ api_key }}&query={{ query_title }}&facets=org:50", function (visualiseOrg) {
+                organisationHits.push(['Organisation', 'Count'])
+
+                $.each(visualiseOrg.facets.org, function (index) {
+                    organisationHits.push([visualiseOrg.facets.org[index].value, visualiseOrg.facets.org[index].count])
+                });
+                google.charts.load('current', {'packages': ['corechart']});
+                google.charts.setOnLoadCallback(drawChart);
+                google.charts.load('current', {'packages': ['corechart']});
+                google.charts.setOnLoadCallback(drawChart);
+
+
+                function drawChart() {
+                    var data = google.visualization.arrayToDataTable(organisationHits);
+                    var options = {
+                        title: 'Organisation %',
+                        sliceVisibilityThreshold: .012
+
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('org_chart'));
+
+                    chart.draw(data, options);
+                }
+            });
+
+
+            // Initialise the awesome map.
+            $('#world-map').vectorMap({
+                map: 'world_mill',
+                series: {
+                    regions: [{
+                        values: countryHits,
+                        scale: ['#C8EEFF', '#0071A4'],
+                        normalizeFunction: 'polynomial'
+                    }]
+                },
+                onRegionTipShow: function (e, el, code) {
+                    el.html(el.html() + ' (Hits - ' + countryHits[code] + ')');
+                }
+            });
+
+
+        })
+    }
+
+    function getTopCountries() {
+        $.getJSON("https://api.shodan.io/shodan/host/count?key={{ api_key }}&query={{ query_title }}&facets=country", function (jsonFromFile) {
+
+            countries = {
+                'li': {
+                    'country<-facets.country': {
+                        '.flag@src': 'http://www.geognos.com/api/en/countries/flag/#{country.value}.png',
+                        'span.country_name': 'country.value',
+                        'span.country_count': 'country.count',
+                    }
+                }
+            }
+
+            $p('.topcountries').render(jsonFromFile, countries)
+
+        })
+
+
+    }
+
+    function getTopVersions() {
+        $.getJSON("https://api.shodan.io/shodan/host/count?key={{ api_key }}&query={{ query_title }}&facets=version", function (jsonFromFile) {
+            versions = {
+                'li': {
+                    'version<-facets.version': {
+                        'span.version_number': 'version.value',
+                        'span.version_count': 'version.count',
+
+                    }
+                }
+            }
+
+            $p('.versions').render(jsonFromFile, versions)
+
+        })
+    }
+
+    function getTopOrganisations() {
+        $.getJSON("https://api.shodan.io/shodan/host/count?key={{ api_key }}&query={{ query_title }}&facets=org", function (jsonFromFile) {
+            organisations = {
+                'li': {
+                    'organisation<-facets.org': {
+                        'span.organisation_name': 'organisation.value',
+                        'span.organisation_count': 'organisation.count',
+
+                    }
+                }
+            }
+
+            $p('.organisations').render(jsonFromFile, organisations)
+
+        })
+    }
+
+
+</script>
+
+</body>
+
+</html>

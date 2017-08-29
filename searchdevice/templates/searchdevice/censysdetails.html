@@ -1,0 +1,95 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+<div id="wrapper">
+    {% include '_navbar.html' %}
+    <div id="page-wrapper">
+        <div class="row">
+            <h1 class="page-header"><i class="glyphicon glyphicon-globe"></i> {{ ip }} </h1>
+        </div>
+        <!-- General Info -->
+        <div class="col-md-6 general-info">
+            <h4>Summary</h4>
+            <table class="table">
+                <thead>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>City:</td>
+                    <td class="data.location.city">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Country:</td>
+                    <td class="data.location.registered_country">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Organization:</td>
+                    <td class="data.autonomous_system.organization">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+                <tr>
+                    <td>Last Update:</td>
+                    <td class="data.updated_at">
+                        <small><i class="fa fa-circle-o-notch fa-spin"></i></small>
+                        Loading
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ports Opened -->
+
+        <div class="col-md-6 ports">
+            <h4> Ports </h4>
+            <ul class="list-unstyled list-inline">
+                <li>
+                    <span class="label label-primary"><small><i class="fa fa-circle-o-notch fa-spin"></i></small> Loading</span>
+                </li>
+            </ul>
+        </div>
+
+            {% include '_scripts.html' %}
+
+
+            <script>
+                $.getJSON("{% url 'censys_api'%}?ip={{ ip }}&api_key={{ api_key }}&api_secret={{ api_secret }}", function (jsonFromFile) {
+
+                    $p('.general-info').autoRender({
+                        data: jsonFromFile
+                    });
+
+                    ports = {
+                        'li': {
+                            'protocol<-protocols': {
+                                'span': 'protocol'
+                            }
+                        }
+                    };
+
+                    $p('.ports').render(jsonFromFile, ports);
+
+                    $('span.port').html(value)
+                });
+
+            </script>
+        </div>
+    </div>
+</div>
+</body>

@@ -1,0 +1,48 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% include '_header.html' %}
+
+<body>
+    <div id="wrapper">
+        {% include '_navbar.html' %}
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa fa-desktop"></i> Honeypot (Deployment)</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="clearfix">
+                        <a href="{% url 'deployhoneypot' %}"><button type="button" class="btn btn-default pull-right">
+                            <span class="glyphicon glyphicon-arrow-left" id="return_to_prev"></span> Return to previous page
+                        </button></a>
+                    </div>
+                    <br />
+                    <div class="panel panel-default">
+                        <div class="panel-heading">{{ heading }}</div>
+                        <div class="panel-body">
+                            <div id="logcontent">
+                                {% if content %}
+                                {{ content }}
+                                {% else %}
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-triangle"></i> <strong>Error:</strong> Unable to read file. Try downloading instead.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include '_scripts.html' %}
+</body>
+
+</html>
