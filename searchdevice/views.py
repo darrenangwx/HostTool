@@ -22,7 +22,7 @@ def index(request):
         try:
             status_response = urlopen(status_url)
             status_data = status_response.read()
-            status_values = json.loads(status_data)
+            status_values = json.loads(status_data).decode('utf-8')
             # If API has an error..
         except HTTPError:
             return render(request, 'searchdevice/shodan.html', {
